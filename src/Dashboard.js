@@ -14,6 +14,12 @@ const Dashboard = ({ code }) => {
 	const accessToken = useAuth(code);
 	const [search, setSearch] = useState('');
 	const [searchResults, setSearchResults] = useState([]);
+	const [playingTrack, setPlayingTrack] = useState();
+
+	const chooseTrack = (track) => {
+		setPlayingTrack(track);
+		setSearch('');
+	};
 
 	useEffect(() => {
 		if (!accessToken) return;
@@ -69,11 +75,15 @@ const Dashboard = ({ code }) => {
 				}}
 			>
 				{searchResults.map((track) => (
-					<TrackSearchResult track={track} key={track.uri} />
+					<TrackSearchResult
+						track={track}
+						key={track.uri}
+						chooseTrack={chooseTrack}
+					/>
 				))}
 			</div>
 			<div>
-				<Player />
+				<Player accessToken={accessToken} trackUri={playingTrack?.uri} />
 			</div>
 		</Container>
 	);
