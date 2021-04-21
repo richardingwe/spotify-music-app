@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Form } from 'react-bootstrap';
 import useAuth from './useAuth';
 import SpotifyWebApi from 'spotify-web-api-node';
+import TrackSearchResult from './TrackSearchResult';
 
 const spotifyApi = new SpotifyWebApi({
 	clientId: '3069650d867c446396f905c38d1b2abd',
@@ -39,7 +40,7 @@ const Dashboard = ({ code }) => {
 						artist: track.artists[0].name,
 						title: track.name,
 						uri: track.uri,
-						albumurl: smallestAlbumImage.url,
+						albumUrl: smallestAlbumImage.url,
 					};
 				})
 			);
@@ -66,7 +67,9 @@ const Dashboard = ({ code }) => {
 					overflowY: 'auto',
 				}}
 			>
-				Songs
+				{searchResults.map((track) => (
+					<TrackSearchResult track={track} key={track.uri} />
+				))}
 			</div>
 			<div>Bottom</div>
 		</Container>
