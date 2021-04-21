@@ -1,11 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Form } from 'react-bootstrap';
 import useAuth from './useAuth';
+import SpotifyWebApi from 'spotify-web-api-node';
+
+const spotifyApi = new SpotifyWebApi({
+	clientId: '3069650d867c446396f905c38d1b2abd',
+});
 
 const Dashboard = ({ code }) => {
 	// acess token
 	const accessToken = useAuth(code);
 	const [search, setSearch] = useState('');
+	const [searchResults, setSearchResults] = useState([]);
+
+	useEffect(() => {
+		if (!accessToken) return;
+		spotifyApi.setAccessToken(accessToken);
+	}, [accessToken]);
+
+	useEffect(() => {
+		if (!search) return setSearchResults([]);
+		if (!accessToken) return;
+
+		let cancel = false;
+		spotifyApi.searchTracks(search).then((res) => {
+			if (cancel) return;
+			setSearchResults(
+				res.body.tracks.items.map((track) => {
+					const smallestAlbumImage = track.album.images.reduce(
+						(smallest, image) => {
+							if (image.height < smallest.height) return image;
+							return smallest;
+						},
+						track.album.images[0]
+					);
+
+					return {
+						artist: track.artists[0].name,
+						title: track.name,
+						uri: track.uri,
+						albumurl: smallestAlbumImage.url,
+					};
+				})
+			);
+		});
+
+		return () => (cancel = true);
+	}, [search, accessToken]);
 	return (
 		<Container
 			className='d-flex flex-column py-2'
